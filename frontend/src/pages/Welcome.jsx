@@ -2,7 +2,9 @@ import { Bounce, toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
-const Welcome = ({ username, setUsername, room, setRoom }) => {
+import io from "socket.io-client";
+
+const Welcome = ({ username, setUsername, room, setRoom, setSocket }) => {
   const navigate = useNavigate();
   const joinRoom = (e) => {
     e.preventDefault();
@@ -12,6 +14,9 @@ const Welcome = ({ username, setUsername, room, setRoom }) => {
       room.trim().length > 0
     ) {
       alert("Successfully joined the room! ");
+      const socket = io.connect("http://localhost:8080");
+      setSocket(socket);
+
       navigate("/chat", {
         replace: true,
       });

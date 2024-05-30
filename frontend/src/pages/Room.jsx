@@ -5,14 +5,25 @@ import {
   UserGroupIcon,
   UserIcon,
 } from "@heroicons/react/24/solid";
-import { useState } from "react";
-const Room = ({ username, room }) => {
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { formatDistanceToNow } from "date-fns";
+
+const Room = ({ username, room, socket }) => {
+  const navigate = useNavigate();
   const [roomUsers, setRoomUsers] = useState(["user1", "user2", "user3"]);
-  const [receivedMessage, setReceiveMessage] = useState([
-    "user1 message",
-    "user2 message",
-    "user3 message",
-  ]);
+  const [receivedMessage, setReceiveMessage] = useState([]);
+  useEffect(() => {
+    socket.on("message", (data) => {
+      setReceiveMessage((prev) => [...prev, data]);
+    });
+    return () => socket.disconnect();
+  }, [socket]);
+
+  const leaveRoom = () => {
+    navigate("/");
+  };
   return (
     <section className="flex gap-4 h-screen">
       {/* left side */}
@@ -43,6 +54,7 @@ const Room = ({ username, room }) => {
         <button
           type="button"
           className="absolute bottom-0 p-2.5 flex items-center gap-1 w-full mx-2 mb-2 text-lg"
+          onClick={leaveRoom}
         >
           <ArrowRightOnRectangleIcon width={30} />
           Leave Room
@@ -56,10 +68,10 @@ const Room = ({ username, room }) => {
               key={i}
               className="text-white bg-blue-500 px-3 py-2 mb-3 w-3/4 rounded-br-3xl rounded-tl-3xl"
             >
-              <p className="text-sm font-medium font-mono">from bot</p>
-              <p className="text-lg font-medium">{msg}</p>
+              <p className="text-sm font-medium font-mono">{msg.username}</p>
+              <p className="text-lg font-medium">{msg.message}</p>
               <p className="text-sm font-mono font-medium text-right">
-                less than a minute
+                {formatDistanceToNow(new Date(msg.sent_at))}
               </p>
             </div>
           ))}
