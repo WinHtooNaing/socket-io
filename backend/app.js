@@ -1,36 +1,59 @@
-const express = require("express")
-const cors = require("cors")
-const socketIO = require("socket.io")
+const express = require("express");
+const cors = require("cors");
+const socketIO = require("socket.io");
 
-const formatMessage = require("./utils/formatMSG")
+const formatMessage = require("./utils/formatMSG");
 
 const app = express();
 
 app.use(cors());
 
-const server = app.listen(8080,()=>{
-    console.log("server started at port 8080");
+const server = app.listen(8080, () => {
+  console.log("server started at port 8080");
 });
 
-const io = socketIO(server,{
-    cors : "*"
-})
+const io = socketIO(server, {
+  cors: "*",
+});
+
+const users = [];
+const saveUser = (id, username, room) => {
+  const user = { id, username, room };
+  users.push(user);
+  return user;
+};
+const getDisconnectUser = (id) => {
+  const index = users.findIndex((user) => user.id === id);
+  if (index !== -1) {
+    return users.splice(index, 1)[0];
+  }
+};
 
 // run when client-server connected
-io.on("connection",(socket)=>{
-    console.log("client connected");
-    const BOT = "Chat bot";
-// send welcome message to joined room
-    socket.emit("message", formatMessage(BOT,"Welcome to the room"));
-    
+io.on("connection", (socket) => {
+  console.log("client connected");
+  const BOT = "Chat bot";
+
+  socket.on("joined_room", ({ username, room }) => {
+    const user = saveUser(socket.id, username, room);
+    socket.join(user.room);
+
+    // send welcome message to joined room
+    socket.emit("message", formatMessage(BOT, "Welcome to the room"));
+
     // send joined message to all users expected of joined room
-    socket.broadcast.emit(
+    socket.broadcast
+      .to(user.room)
+      .emit("message", formatMessage(BOT, username + " joined the room"));
+  });
+
+  socket.on("disconnect", () => {
+    const user = getDisconnectUser(socket.id);
+    if (user) {
+      io.to(user.room).emit(
         "message",
-        formatMessage(BOT,"Other user joined the room")
-    )
-
-    socket.on("disconnect",()=>{
-        io.emit("message",formatMessage(BOT,"Other user left the room"))
-    })
-
-})
+        formatMessage(BOT, user.username + " left the room")
+      );
+    }
+  });
+});

@@ -15,6 +15,10 @@ const Room = ({ username, room, socket }) => {
   const [roomUsers, setRoomUsers] = useState(["user1", "user2", "user3"]);
   const [receivedMessage, setReceiveMessage] = useState([]);
   useEffect(() => {
+    // sent joined user info to server
+    socket.emit("joined_room", { username, room });
+
+    // get message form server
     socket.on("message", (data) => {
       setReceiveMessage((prev) => [...prev, data]);
     });
