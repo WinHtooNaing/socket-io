@@ -28,6 +28,9 @@ const getDisconnectUser = (id) => {
     return users.splice(index, 1)[0];
   }
 };
+const getSameRoomUsers = (room) => {
+  return users.filter((user) => user.room === room);
+};
 
 // run when client-server connected
 io.on("connection", (socket) => {
@@ -45,6 +48,15 @@ io.on("connection", (socket) => {
     socket.broadcast
       .to(user.room)
       .emit("message", formatMessage(BOT, username + " joined the room"));
+
+    // listen message from client
+    socket.on("message_send", (data) => {
+      // send back message to client
+      io.to(user.room).emit("message", formatMessage(user.username, data));
+    });
+
+    // send room users
+    io.to(user.room).emit("room_users", getSameRoomUsers(user.room));
   });
 
   socket.on("disconnect", () => {
