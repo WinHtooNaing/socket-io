@@ -6,4 +6,9 @@
     "mongoose": "^8.4.0",
     "socket.io": "^4.7.5"
   }
+  ,
+  "scripts": {
+    "start": "node app",
+    "build": "npm install"
+  }
 }

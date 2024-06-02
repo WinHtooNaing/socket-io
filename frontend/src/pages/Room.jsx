@@ -18,11 +18,17 @@ const Room = ({ username, room, socket }) => {
 
   const boxDivRef = useRef(null);
   const getOldMessage = async () => {
-    const response = await fetch(`${import.meta.VITE_SERVER}/chat/${room}`);
+    const response = await fetch(`${import.meta.env.VITE_SERVER}/chat/${room}`);
+    console.log("====================================");
+    console.log(response);
+    console.log("====================================");
     if (response.status === 403) {
       return navigate("/");
     }
     const data = await response.json();
+    console.log("====================================");
+    console.log(data);
+    console.log("====================================");
     setReceiveMessage((prev) => [...prev, ...data]);
   };
   useEffect(() => {
