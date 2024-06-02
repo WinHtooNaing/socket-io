@@ -52,7 +52,7 @@ const Welcome = ({ username, setUsername, room, setRoom, setSocket }) => {
         <ToastContainer />
       </div>
       <section className="w-full h-screen flex items-center justify-center">
-        <div className="w-1/2 bg-gray-50 p-10 rounded-lg">
+        <div className="w-1/2 max-sm:w-3/4 bg-gray-50 p-10 rounded-lg">
           <h2 className="text-5xl font-bold text-center mb-6 text-blue-500">
             Room.io
           </h2>
